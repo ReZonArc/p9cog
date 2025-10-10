@@ -564,11 +564,28 @@ graph TB
 
 *This documentation provides an overview of Plan 9's technical architecture. For detailed implementation information, refer to the papers in `/sys/doc/` and the manual pages in `/sys/man/`.*
 
-## References
+## Additional Documentation
 
+This architecture overview provides a high-level view of Plan 9's design. For detailed information on specific components, see:
+
+### Detailed Architecture Documents
+- [Kernel Architecture](docs/KERNEL_ARCHITECTURE.md) - Detailed kernel internals, process management, memory management
+- [9P Protocol](docs/9P_PROTOCOL.md) - Complete 9P protocol specification and message flows
+- [File System Architecture](docs/FILESYSTEM_ARCHITECTURE.md) - Fossil and Venti file system design
+- [Networking Architecture](docs/NETWORKING_ARCHITECTURE.md) - Network stack, protocols, and services  
+- [Development Environment](docs/DEVELOPMENT_ENVIRONMENT.md) - Programming tools and workflow
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - System configuration and deployment
+
+### System Documentation References
 - `/sys/doc/9.ms` - Plan 9 from Bell Labs paper
 - `/sys/doc/auth.ms` - Security in Plan 9
 - `/sys/doc/prog4.ms` - Programming Environment Changes
 - `/sys/doc/fossil.ms` - The Fossil File System
 - `/sys/doc/venti/` - Venti documentation
 - `/sys/man/` - Manual pages for all components
+
+### Key Design Papers
+- "Plan 9 from Bell Labs" - foundational system design paper
+- "The Use of Name Spaces in Plan 9" - namespace and resource model
+- "Process Sleep and Wakeup on a Shared-memory Multiprocessor" - concurrency model
+- "Security in Plan 9" - authentication and security architecture
