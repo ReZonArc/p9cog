@@ -368,6 +368,60 @@ int distributed_wage_payment(AttentionService* service, CognitiveAgent* agent);
 void demo_distributed_inference_engines(void);
 
 /*
+ * Multi-Node Synchronization Functions
+ */
+typedef struct AtomSpaceSyncState AtomSpaceSyncState;
+typedef struct NamespaceConflictResolver NamespaceConflictResolver;
+typedef struct ConflictRecord ConflictRecord;
+typedef struct SyncConfig SyncConfig;
+
+/* Synchronization states */
+enum SyncState {
+    SYNC_IDLE = 0,
+    SYNC_REQUESTING = 1,
+    SYNC_RECEIVING = 2,
+    SYNC_MERGING = 3,
+    SYNC_CONFLICT_RESOLVING = 4,
+    SYNC_COMPLETE = 5,
+    SYNC_ERROR = 6
+};
+
+/* Conflict resolution strategies */
+enum ConflictResolutionStrategy {
+    RESOLVE_BY_TIMESTAMP = 1,
+    RESOLVE_BY_CONFIDENCE = 2,
+    RESOLVE_BY_AUTHORITY = 3,
+    RESOLVE_BY_CONSENSUS = 4,
+    RESOLVE_BY_MERGE = 5
+};
+
+/* Consistency models */
+enum ConsistencyModel {
+    CONSISTENCY_STRONG = 1,
+    CONSISTENCY_EVENTUAL = 2,
+    CONSISTENCY_WEAK = 3,
+    CONSISTENCY_CAUSAL = 4
+};
+
+AtomSpaceSyncState* create_atomspace_sync_state(AtomSpaceService* atomspace, CognitiveFederation* federation);
+int atomspace_synchronize_with_peers(AtomSpaceSyncState* sync_state);
+int atomspace_merge_peer_states(AtomSpaceSyncState* sync_state);
+int atomspace_resolve_conflicts(AtomSpaceSyncState* sync_state, int conflict_count);
+
+NamespaceConflictResolver* create_namespace_conflict_resolver(CognitiveFederation* federation);
+int namespace_detect_conflict(NamespaceConflictResolver* resolver, Atom* local_atom, Atom* remote_atom);
+Atom* namespace_resolve_conflict(NamespaceConflictResolver* resolver, ConflictRecord* conflict);
+int namespace_apply_resolution(NamespaceConflictResolver* resolver, Atom* resolved_atom, char* namespace_path);
+
+int ensure_distributed_consistency(AtomSpaceSyncState* sync_state);
+int ensure_eventual_consistency(AtomSpaceSyncState* sync_state);
+int ensure_strong_consistency(AtomSpaceSyncState* sync_state);
+int ensure_causal_consistency(AtomSpaceSyncState* sync_state);
+int ensure_weak_consistency(AtomSpaceSyncState* sync_state);
+
+void demo_multi_node_synchronization(void);
+
+/*
  * AtomSpace Implementation Functions
  */
 Atom* atomspace_add_atom(AtomSpaceService* service, enum AtomType type, char* name, 

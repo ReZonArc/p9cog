@@ -35,6 +35,7 @@ extern void demo_cognitive_agent(void);
 extern void demo_goal_manager(void);
 extern void demo_cognitive_federation(void);
 extern void demo_distributed_inference_engines(void);
+extern void demo_multi_node_synchronization(void);
 void demo_opencog_integration(CognitiveCity *city);
 
 void
@@ -483,4 +484,7 @@ demo_opencog_integration(CognitiveCity *city) {
     
     /* Demonstrate distributed inference engines */
     demo_distributed_inference_engines();
+    
+    /* Demonstrate multi-node synchronization */
+    demo_multi_node_synchronization();
 }
