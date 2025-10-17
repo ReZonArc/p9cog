@@ -11,7 +11,7 @@ TARGET = cogcity
 # Core cognitive cities sources
 CORE_SOURCES = main.c cogcity.c lexer.c y.tab.c plan9_compat.c
 # OpenCog-P9 integration sources
-OPENCOG_SOURCES = atomspace-service.c atom-core.c cognitive-agent.c goal-manager.c
+OPENCOG_SOURCES = atomspace-service.c atom-core.c cognitive-agent.c goal-manager.c cognitive-federation.c distributed-inference.c multi-node-sync.c
 # All sources
 SOURCES = $(CORE_SOURCES) $(OPENCOG_SOURCES)
 OBJECTS = $(SOURCES:.c=.o)
@@ -53,6 +53,15 @@ cognitive-agent.o: cognitive-agent.c $(HEADERS)
 
 goal-manager.o: goal-manager.c $(HEADERS)
 	$(CC) $(CFLAGS) -c goal-manager.c
+
+cognitive-federation.o: cognitive-federation.c $(HEADERS)
+	$(CC) $(CFLAGS) -c cognitive-federation.c
+
+distributed-inference.o: distributed-inference.c $(HEADERS)
+	$(CC) $(CFLAGS) -c distributed-inference.c
+
+multi-node-sync.o: multi-node-sync.c $(HEADERS)
+	$(CC) $(CFLAGS) -c multi-node-sync.c
 
 # Clean build artifacts
 clean:
@@ -113,6 +122,9 @@ help:
 	@echo "  • Distributed AGI agents as kernel-level entities"
 	@echo "  • AtomSpace as native filesystem service"
 	@echo "  • Goal-oriented autonomous reasoning"
+	@echo "  • Cognitive federation protocols"
+	@echo "  • Distributed inference engines"
+	@echo "  • Multi-node synchronization"
 
 .PHONY: clean install demo demo-opencog interactive help all demo-safe
 .DEFAULT_GOAL := $(TARGET)
