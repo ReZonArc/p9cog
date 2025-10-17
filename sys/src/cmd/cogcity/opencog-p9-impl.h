@@ -597,6 +597,16 @@ int ensure_weak_consistency(AtomSpaceSyncState* sync_state);
 void demo_multi_node_synchronization(void);
 
 /*
+ * Phase 5 Enhanced Functions
+ */
+QueryResult* enhanced_pattern_match(PatternMatcher* matcher, Atom* pattern);
+Atom* enhanced_parse_sexpr(PatternMatcher* matcher, char* sexpr);
+PLNInference* enhanced_pln_inference(LearningService* service, Atom** premises, int premise_count);
+int enhanced_add_pln_rule(LearningService* service, PLNRule* rule);
+PLNInference** enhanced_forward_chaining(LearningService* service, Atom** facts, int fact_count, int* inference_count);
+PLNInference** enhanced_backward_chaining(LearningService* service, Atom* goal, int* inference_count);
+
+/*
  * Phase 5 Enhanced Demo Functions
  */
 void demo_enhanced_pattern_matching(void);
