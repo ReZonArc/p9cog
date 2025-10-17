@@ -338,6 +338,36 @@ void cognitive_federation_process_message(CognitiveFederation* federation, Feder
 void demo_cognitive_federation(void);
 
 /*
+ * Distributed Inference Engine Functions
+ */
+PatternMatcher* create_distributed_pattern_matcher(AtomSpaceService* atomspace, CognitiveFederation* federation);
+Atom** distributed_pattern_match(PatternMatcher* matcher, Atom* pattern, int* result_count);
+int distributed_variable_binding(PatternMatcher* matcher, Atom* pattern, void* bindings);
+double distributed_confidence_calculation(PatternMatcher* matcher, void* match_result);
+int distributed_federated_match(PatternMatcher* matcher, Atom* pattern, char** remote_nodes);
+int distributed_result_aggregation(PatternMatcher* matcher, void** partial_results, int count);
+
+LearningService* create_distributed_learning_service(AtomSpaceService* atomspace, CognitiveAgent* owner, CognitiveFederation* federation);
+int distributed_pln_inference(LearningService* service, Atom* premises, Atom** conclusions);
+int distributed_moses_optimization(LearningService* service, void* problem_definition);
+int distributed_reinforcement_learning(LearningService* service, void* reward_signal);
+int distributed_clustering(LearningService* service, Atom** data, int data_size);
+int distributed_interaction_learning(LearningService* service, void* interaction_data);
+int distributed_knowledge_update(LearningService* service, Atom* new_knowledge);
+int distributed_forgetting(LearningService* service, double threshold);
+
+AttentionService* create_distributed_attention_service(AtomSpaceService* atomspace, CognitiveFederation* federation);
+int distributed_attention_update(AttentionService* service, Atom* atom);
+int distributed_attention_spread(AttentionService* service, Atom* source, double amount);
+Atom** distributed_attentional_focus(AttentionService* service, int* count);
+int distributed_hebbian_update(AttentionService* service, Atom* atom1, Atom* atom2);
+double distributed_rent_calculation(AttentionService* service, Atom* atom);
+int distributed_rent_collection(AttentionService* service);
+int distributed_wage_payment(AttentionService* service, CognitiveAgent* agent);
+
+void demo_distributed_inference_engines(void);
+
+/*
  * AtomSpace Implementation Functions
  */
 Atom* atomspace_add_atom(AtomSpaceService* service, enum AtomType type, char* name, 

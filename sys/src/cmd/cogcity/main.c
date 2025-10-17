@@ -34,6 +34,7 @@ extern void demo_atomspace_service(void);
 extern void demo_cognitive_agent(void);
 extern void demo_goal_manager(void);
 extern void demo_cognitive_federation(void);
+extern void demo_distributed_inference_engines(void);
 void demo_opencog_integration(CognitiveCity *city);
 
 void
@@ -479,4 +480,7 @@ demo_opencog_integration(CognitiveCity *city) {
     /* Now demonstrate the distributed federation */
     print("\n🌐 DISTRIBUTED AGI FEDERATION DEMO 🌐\n");
     demo_cognitive_federation();
+    
+    /* Demonstrate distributed inference engines */
+    demo_distributed_inference_engines();
 }
