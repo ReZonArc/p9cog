@@ -11,7 +11,7 @@ TARGET = cogcity
 # Core cognitive cities sources
 CORE_SOURCES = main.c cogcity.c lexer.c y.tab.c plan9_compat.c
 # OpenCog-P9 integration sources
-OPENCOG_SOURCES = atomspace-service.c atom-core.c cognitive-agent.c goal-manager.c cognitive-federation.c distributed-inference.c multi-node-sync.c
+OPENCOG_SOURCES = atomspace-service.c atom-core.c cognitive-agent.c goal-manager.c cognitive-federation.c distributed-inference.c multi-node-sync.c enhanced-pattern-matching.c pln-reasoning.c attention-economics.c phase5-integration.c
 # All sources
 SOURCES = $(CORE_SOURCES) $(OPENCOG_SOURCES)
 OBJECTS = $(SOURCES:.c=.o)
@@ -63,6 +63,18 @@ distributed-inference.o: distributed-inference.c $(HEADERS)
 multi-node-sync.o: multi-node-sync.c $(HEADERS)
 	$(CC) $(CFLAGS) -c multi-node-sync.c
 
+enhanced-pattern-matching.o: enhanced-pattern-matching.c $(HEADERS)
+	$(CC) $(CFLAGS) -c enhanced-pattern-matching.c
+
+pln-reasoning.o: pln-reasoning.c $(HEADERS)
+	$(CC) $(CFLAGS) -c pln-reasoning.c
+
+attention-economics.o: attention-economics.c $(HEADERS)
+	$(CC) $(CFLAGS) -c attention-economics.c
+
+phase5-integration.o: phase5-integration.c $(HEADERS)
+	$(CC) $(CFLAGS) -c phase5-integration.c
+
 # Clean build artifacts
 clean:
 	rm -f $(OBJECTS) $(TARGET) cogcity-safe demo_safe.o plan9_compat_safe.o y.tab.c y.tab.h y.output opencog-demo
@@ -84,6 +96,19 @@ demo-opencog: $(TARGET)
 # Demo safe target
 demo-safe: cogcity-safe
 	./cogcity-safe
+
+# Phase 5 demo targets
+demo-phase5: $(TARGET)
+	./$(TARGET) -p5 -c "Phase5City"
+
+demo-enhanced-pattern-matching: $(TARGET)
+	./$(TARGET) -epm -c "PatternMatchingCity"
+
+demo-pln-reasoning: $(TARGET)
+	./$(TARGET) -pln -c "PLNReasoningCity"
+
+demo-attention-economics: $(TARGET)
+	./$(TARGET) -ae -c "AttentionEconomicsCity"
 
 # Safe version without complex threading
 cogcity-safe: demo_safe.o cogcity.o lexer.o y.tab.o plan9_compat_safe.o

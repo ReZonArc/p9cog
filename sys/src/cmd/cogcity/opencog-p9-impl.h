@@ -18,6 +18,22 @@ typedef struct TensorBundle TensorBundle;
  * These map OpenCog concepts to Plan 9 primitives
  */
 
+/* Hash Table for efficient indexing */
+typedef struct HashEntry HashEntry;
+typedef struct HashTable HashTable;
+
+struct HashEntry {
+    char *key;
+    void *value;
+    HashEntry *next;
+};
+
+struct HashTable {
+    int size;
+    int count;
+    HashEntry **buckets;
+};
+
 typedef struct AtomSpaceService AtomSpaceService;
 typedef struct CognitiveAgent CognitiveAgent;
 typedef struct AttentionService AttentionService;
@@ -98,9 +114,9 @@ struct AtomSpaceService {
     int atom_capacity;         /* Storage capacity */
     
     /* Index structures */
-    void *type_index;          /* Index by type */
-    void *name_index;          /* Index by name */
-    void *incoming_index;      /* Incoming link index */
+    HashTable *type_index;          /* Index by type */
+    HashTable *name_index;          /* Index by name */
+    HashTable *incoming_index;      /* Incoming link index */
     
     /* Service operations */
     Atom* (*add_atom)(AtomSpaceService*, enum AtomType, char*, Atom**, int);
@@ -152,10 +168,44 @@ struct CognitiveAgent {
     int (*terminate_agent)(CognitiveAgent*);
 };
 
-/* Attention Service - Cognitive resource allocation */
+/* Attention Economics System */
+typedef struct AttentionBank AttentionBank;
+typedef struct AttentionAllocation AttentionAllocation;
+typedef struct CognitiveResource CognitiveResource;
+
+struct AttentionAllocation {
+    Atom *atom;
+    double allocated_sti;
+    double allocated_lti;
+    double usage_rate;
+    double rent_due;
+    time_t last_access;
+};
+
+struct CognitiveResource {
+    char *resource_type;  /* "attention", "memory", "computation" */
+    double total_capacity;
+    double allocated_capacity;
+    double utilization_rate;
+    double efficiency_score;
+};
+
+struct AttentionBank {
+    double sti_funds;
+    double lti_funds;
+    double total_sti_capacity;
+    double total_lti_capacity;
+    AttentionAllocation **allocations;
+    int allocation_count;
+    CognitiveResource **resources;
+    int resource_count;
+};
+
+/* Attention Service - Advanced cognitive resource allocation */
 struct AttentionService {
     char *service_name;
     AtomSpaceService *atomspace;
+    AttentionBank *bank;
     
     /* Attention parameters */
     double total_sti_budget;    /* Total STI budget */
@@ -169,13 +219,44 @@ struct AttentionService {
     Atom** (*get_attentional_focus)(AttentionService*, int* count);
     int (*hebbian_update)(AttentionService*, Atom*, Atom*);
     
-    /* Economic attention allocation */
+    /* Enhanced economic attention allocation */
     double (*calculate_rent)(AttentionService*, Atom*);
     int (*collect_rent)(AttentionService*);
     int (*wage_payment)(AttentionService*, CognitiveAgent*);
+    
+    /* Advanced attention economics */
+    int (*allocate_sti_budget)(AttentionService*, Atom*, double amount);
+    int (*deallocate_sti_budget)(AttentionService*, Atom*, double amount);
+    double (*get_cognitive_load)(AttentionService*);
+    int (*optimize_attention_allocation)(AttentionService*);
+    CognitiveResource* (*get_resource_status)(AttentionService*, char* resource_type);
 };
 
-/* Pattern Matcher - Distributed query processing */
+/* Pattern Matcher - Advanced distributed query processing */
+typedef struct QueryResult QueryResult;
+typedef struct VariableBinding VariableBinding;
+typedef struct SExpressionParser SExpressionParser;
+
+struct QueryResult {
+    Atom **matched_atoms;
+    int match_count;
+    double confidence;
+    VariableBinding *bindings;
+};
+
+struct VariableBinding {
+    char *variable_name;
+    Atom *bound_atom;
+    VariableBinding *next;
+};
+
+struct SExpressionParser {
+    char *input;
+    int position;
+    int length;
+    char *error_message;
+};
+
 struct PatternMatcher {
     char *service_name;
     AtomSpaceService *atomspace;
@@ -184,14 +265,18 @@ struct PatternMatcher {
     Channel *query_channel;     /* Query requests */
     Channel *result_channel;    /* Query results */
     
+    /* Enhanced S-expression parsing */
+    SExpressionParser *parser;
+    
     /* Pattern matching operations */
-    Atom** (*match_pattern)(PatternMatcher*, Atom* pattern, int* result_count);
-    int (*bind_variables)(PatternMatcher*, Atom* pattern, void* bindings);
-    double (*calculate_confidence)(PatternMatcher*, void* match_result);
+    QueryResult* (*match_pattern)(PatternMatcher*, Atom* pattern);
+    int (*bind_variables)(PatternMatcher*, Atom* pattern, VariableBinding** bindings);
+    double (*calculate_confidence)(PatternMatcher*, QueryResult* result);
+    Atom* (*parse_sexpr)(PatternMatcher*, char* sexpr);
     
     /* Distributed matching */
     int (*federated_match)(PatternMatcher*, Atom* pattern, char** remote_nodes);
-    int (*aggregate_results)(PatternMatcher*, void** partial_results, int count);
+    QueryResult* (*aggregate_results)(PatternMatcher*, QueryResult** partial_results, int count);
 };
 
 /* Goal Manager - Goal-oriented reasoning */
@@ -217,14 +302,47 @@ struct GoalManager {
     int (*monitor_progress)(GoalManager*, void* plan);
 };
 
-/* Learning Service - Adaptive cognitive mechanisms */
+/* PLN (Probabilistic Logic Networks) Service */
+typedef struct PLNRule PLNRule;
+typedef struct PLNInference PLNInference;
+typedef struct PLNRuleEngine PLNRuleEngine;
+
+struct PLNRule {
+    char *rule_name;
+    enum AtomType premise_type;
+    enum AtomType conclusion_type;
+    double (*calculate_truth_value)(TruthValue** premises, int premise_count);
+    int (*apply_rule)(Atom** premises, int premise_count, Atom** conclusions, int* conclusion_count);
+    PLNRule *next;
+};
+
+struct PLNInference {
+    Atom **premises;
+    int premise_count;
+    Atom **conclusions;
+    int conclusion_count;
+    double inference_strength;
+    PLNRule *applied_rule;
+};
+
+struct PLNRuleEngine {
+    PLNRule *rules;
+    int rule_count;
+    double min_confidence_threshold;
+    int max_inference_steps;
+};
+
+/* Learning Service - Advanced adaptive cognitive mechanisms */
 struct LearningService {
     char *service_name;
     AtomSpaceService *atomspace;
     CognitiveAgent *owner;
     
+    /* PLN Integration */
+    PLNRuleEngine *pln_engine;
+    
     /* Learning algorithms */
-    int (*pln_inference)(LearningService*, Atom* premises, Atom** conclusions);
+    PLNInference* (*pln_inference)(LearningService*, Atom** premises, int premise_count);
     int (*moses_optimization)(LearningService*, void* problem_definition);
     int (*reinforcement_learning)(LearningService*, void* reward_signal);
     int (*unsupervised_clustering)(LearningService*, Atom** data, int data_size);
@@ -233,6 +351,11 @@ struct LearningService {
     int (*learn_from_interaction)(LearningService*, void* interaction_data);
     int (*update_knowledge)(LearningService*, Atom* new_knowledge);
     int (*forget_irrelevant)(LearningService*, double threshold);
+    
+    /* Advanced PLN operations */
+    int (*add_pln_rule)(LearningService*, PLNRule* rule);
+    PLNInference** (*forward_chaining)(LearningService*, Atom** facts, int fact_count, int* inference_count);
+    PLNInference** (*backward_chaining)(LearningService*, Atom* goal, int* inference_count);
 };
 
 /* Cognitive Federation - Distributed AGI coordination */
@@ -260,6 +383,58 @@ struct CognitiveFederation {
     int (*aggregate_responses)(CognitiveFederation*, void** responses, int count);
     int (*coordinate_learning)(CognitiveFederation*, void* learning_task);
 };
+
+/*
+ * Hash Table Functions
+ */
+HashTable* create_hash_table(int size);
+void destroy_hash_table(HashTable* table);
+int hash_put(HashTable* table, char* key, void* value);
+void* hash_get(HashTable* table, char* key);
+int hash_remove(HashTable* table, char* key);
+void hash_clear(HashTable* table);
+
+/*
+ * Enhanced Pattern Matching Functions
+ */
+SExpressionParser* create_sexpr_parser(char* input);
+void destroy_sexpr_parser(SExpressionParser* parser);
+Atom* parse_sexpr_recursive(SExpressionParser* parser, AtomSpaceService* atomspace);
+int skip_whitespace(SExpressionParser* parser);
+char* parse_atom_name(SExpressionParser* parser);
+enum AtomType parse_atom_type(SExpressionParser* parser);
+
+QueryResult* create_query_result(void);
+void destroy_query_result(QueryResult* result);
+VariableBinding* create_variable_binding(char* var_name, Atom* atom);
+void destroy_variable_binding(VariableBinding* binding);
+
+/*
+ * PLN Rule Engine Functions
+ */
+PLNRuleEngine* create_pln_rule_engine(void);
+void destroy_pln_rule_engine(PLNRuleEngine* engine);
+PLNRule* create_pln_rule(char* name, enum AtomType premise_type, enum AtomType conclusion_type);
+void destroy_pln_rule(PLNRule* rule);
+int add_pln_rule_to_engine(PLNRuleEngine* engine, PLNRule* rule);
+
+/* Standard PLN inference rules */
+PLNRule* create_deduction_rule(void);
+PLNRule* create_inheritance_rule(void);
+PLNRule* create_similarity_rule(void);
+PLNRule* create_implication_rule(void);
+
+/*
+ * Attention Economics Functions
+ */
+AttentionBank* create_attention_bank(double sti_capacity, double lti_capacity);
+AttentionService* create_enhanced_attention_service(AtomSpaceService* atomspace);
+AttentionAllocation* find_allocation_for_atom(AttentionService* service, Atom* atom);
+void destroy_attention_bank(AttentionBank* bank);
+AttentionAllocation* create_attention_allocation(Atom* atom, double sti, double lti);
+void destroy_attention_allocation(AttentionAllocation* allocation);
+CognitiveResource* create_cognitive_resource(char* type, double capacity);
+void destroy_cognitive_resource(CognitiveResource* resource);
 
 /*
  * Core Service Creation Functions
@@ -341,14 +516,14 @@ void demo_cognitive_federation(void);
  * Distributed Inference Engine Functions
  */
 PatternMatcher* create_distributed_pattern_matcher(AtomSpaceService* atomspace, CognitiveFederation* federation);
-Atom** distributed_pattern_match(PatternMatcher* matcher, Atom* pattern, int* result_count);
-int distributed_variable_binding(PatternMatcher* matcher, Atom* pattern, void* bindings);
-double distributed_confidence_calculation(PatternMatcher* matcher, void* match_result);
+QueryResult* distributed_pattern_match(PatternMatcher* matcher, Atom* pattern);
+int distributed_variable_binding(PatternMatcher* matcher, Atom* pattern, VariableBinding** bindings);
+double distributed_confidence_calculation(PatternMatcher* matcher, QueryResult* match_result);
 int distributed_federated_match(PatternMatcher* matcher, Atom* pattern, char** remote_nodes);
-int distributed_result_aggregation(PatternMatcher* matcher, void** partial_results, int count);
+QueryResult* distributed_result_aggregation(PatternMatcher* matcher, QueryResult** partial_results, int count);
 
 LearningService* create_distributed_learning_service(AtomSpaceService* atomspace, CognitiveAgent* owner, CognitiveFederation* federation);
-int distributed_pln_inference(LearningService* service, Atom* premises, Atom** conclusions);
+PLNInference* distributed_pln_inference(LearningService* service, Atom** premises, int premise_count);
 int distributed_moses_optimization(LearningService* service, void* problem_definition);
 int distributed_reinforcement_learning(LearningService* service, void* reward_signal);
 int distributed_clustering(LearningService* service, Atom** data, int data_size);
@@ -420,6 +595,14 @@ int ensure_causal_consistency(AtomSpaceSyncState* sync_state);
 int ensure_weak_consistency(AtomSpaceSyncState* sync_state);
 
 void demo_multi_node_synchronization(void);
+
+/*
+ * Phase 5 Enhanced Demo Functions
+ */
+void demo_enhanced_pattern_matching(void);
+void demo_pln_reasoning(void);
+void demo_attention_economics(void);
+void demo_phase5_integration(void);
 
 /*
  * AtomSpace Implementation Functions
