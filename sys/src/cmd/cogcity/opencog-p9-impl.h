@@ -306,6 +306,38 @@ int extend_cognitive_grammar_for_opencog(CognitiveGrammar* grammar);
 int multiplex_cognitive_channels(TensorBundle* bundle, CognitiveFederation* federation);
 
 /*
+ * Cognitive Federation Implementation Functions
+ */
+typedef struct FederationMessage FederationMessage;
+typedef struct PeerNode PeerNode;
+
+/* Federation message types */
+enum FederationMessageType {
+    MSG_PEER_DISCOVERY = 1,
+    MSG_JOIN_REQUEST = 2,
+    MSG_JOIN_RESPONSE = 3,
+    MSG_LEAVE_NOTIFY = 4,
+    MSG_QUERY_DISTRIBUTE = 5,
+    MSG_QUERY_RESPONSE = 6,
+    MSG_STATE_SYNC = 7,
+    MSG_HEARTBEAT = 8,
+    MSG_CONFLICT_RESOLVE = 9
+};
+
+int cognitive_federation_join(CognitiveFederation* federation, char* federation_id);
+int cognitive_federation_leave(CognitiveFederation* federation);
+int cognitive_federation_discover_peers(CognitiveFederation* federation);
+int cognitive_federation_synchronize_state(CognitiveFederation* federation, char* peer_node);
+int cognitive_federation_distribute_query(CognitiveFederation* federation, Atom* query);
+int cognitive_federation_aggregate_responses(CognitiveFederation* federation, void** responses, int count);
+int cognitive_federation_coordinate_learning(CognitiveFederation* federation, void* learning_task);
+int cognitive_federation_add_peer(CognitiveFederation* federation, char* peer_name, char* peer_info);
+FederationMessage* cognitive_federation_create_message(enum FederationMessageType type, char* sender, char* target, char* content);
+int cognitive_federation_send_message(CognitiveFederation* federation, char* target_node, enum FederationMessageType type, char* content);
+void cognitive_federation_process_message(CognitiveFederation* federation, FederationMessage* msg);
+void demo_cognitive_federation(void);
+
+/*
  * AtomSpace Implementation Functions
  */
 Atom* atomspace_add_atom(AtomSpaceService* service, enum AtomType type, char* name, 

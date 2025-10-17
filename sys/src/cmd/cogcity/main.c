@@ -33,6 +33,7 @@ extern void demo_atom_core(void);
 extern void demo_atomspace_service(void);
 extern void demo_cognitive_agent(void);
 extern void demo_goal_manager(void);
+extern void demo_cognitive_federation(void);
 void demo_opencog_integration(CognitiveCity *city);
 
 void
@@ -474,4 +475,8 @@ demo_opencog_integration(CognitiveCity *city) {
     print("   • Autonomous reasoning agents\n");
     print("   • Goal-oriented planning\n");
     print("   • Filesystem-based cognitive interface\n");
+    
+    /* Now demonstrate the distributed federation */
+    print("\n🌐 DISTRIBUTED AGI FEDERATION DEMO 🌐\n");
+    demo_cognitive_federation();
 }

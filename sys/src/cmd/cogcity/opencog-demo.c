@@ -10,6 +10,7 @@ extern void demo_atom_core(void);
 extern void demo_atomspace_service(void);
 extern void demo_cognitive_agent(void);
 extern void demo_goal_manager(void);
+extern void demo_cognitive_federation(void);
 
 void demo_opencog_p9_integration(void);
 void demo_distributed_agi_federation(void);
@@ -30,6 +31,7 @@ main(int argc, char *argv[]) {
         demo_atomspace_service();
         demo_cognitive_agent();
         demo_goal_manager();
+        demo_cognitive_federation();
         
         /* Integration demos */
         demo_opencog_p9_integration();
@@ -146,7 +148,10 @@ demo_distributed_agi_federation(void) {
     print("\n🌐 DISTRIBUTED AGI FEDERATION DEMO 🌐\n");
     print("═══════════════════════════════════════════\n");
     
-    print("🏛️  Creating cognitive federation...\n");
+    /* Call the actual federation demo */
+    demo_cognitive_federation();
+    
+    print("\n🏛️  Creating specialized federation nodes...\n");
     
     /* Create federation nodes */
     CognitiveFederation *tokyo_node = create_cognitive_federation("GlobalAGI", "Tokyo");
@@ -157,14 +162,31 @@ demo_distributed_agi_federation(void) {
     print("  🌍 London node: Specializes in natural language processing\n");
     print("  🌍 NewYork node: Specializes in financial reasoning\n");
     
+    /* Join nodes to federation */
+    tokyo_node->join_federation(tokyo_node, "GlobalAGI-Network");
+    london_node->join_federation(london_node, "GlobalAGI-Network");
+    newyork_node->join_federation(newyork_node, "GlobalAGI-Network");
+    
     /* Simulate distributed query processing */
     print("\n🔍 Distributed query: 'Design an AI system for automated trading'\n");
+    
+    /* Create a complex query that requires all specializations */
+    Atom *trading_query = create_atom(CONCEPT_NODE, "automated_trading_system", nil, 0);
+    
+    print("  📤 Distributing query to federation...\n");
+    tokyo_node->distribute_query(tokyo_node, trading_query);
+    london_node->distribute_query(london_node, trading_query);
+    newyork_node->distribute_query(newyork_node, trading_query);
     
     print("  📡 Tokyo node contributes: Sensor integration and real-time decision making\n");
     print("  📡 London node contributes: Market sentiment analysis from news\n");
     print("  📡 NewYork node contributes: Financial risk assessment and compliance\n");
     
-    print("  🧠 Federated reasoning result: Comprehensive trading AI design with\n");
+    /* Simulate response aggregation */
+    void* federation_responses[3] = {(void*)tokyo_node, (void*)london_node, (void*)newyork_node};
+    int responses = tokyo_node->aggregate_responses(tokyo_node, federation_responses, 3);
+    
+    print("  🧠 Federated reasoning result (%d responses): Comprehensive trading AI design with\n", responses);
     print("      multi-modal sensor fusion, NLP-based sentiment analysis, and\n");
     print("      risk-aware decision making\n");
     
@@ -187,6 +209,12 @@ demo_distributed_agi_federation(void) {
     print("  ├── topology/                   # Network topology management\n");
     print("  ├── synchronization/            # Cognitive state sync\n");
     print("  └── collaboration/              # Cross-node collaboration\n");
+    
+    /* Demonstrate state synchronization */
+    print("\n🔄 Demonstrating inter-node synchronization...\n");
+    tokyo_node->synchronize_state(tokyo_node, "London");
+    london_node->synchronize_state(london_node, "NewYork");
+    newyork_node->synchronize_state(newyork_node, "Tokyo");
     
     print("\n✅ Distributed AGI federation demo complete!\n");
 }
