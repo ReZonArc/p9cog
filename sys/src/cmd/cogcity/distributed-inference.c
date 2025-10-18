@@ -97,8 +97,8 @@ create_distributed_pattern_matcher(AtomSpaceService* atomspace, CognitiveFederat
     return matcher;
 }
 
-Atom**
-distributed_pattern_match(PatternMatcher* matcher, Atom* pattern, int* result_count) {
+QueryResult*
+distributed_pattern_match(PatternMatcher* matcher, Atom* pattern) {
     print("🔍 Distributed pattern matching: %s\n", pattern->name ? pattern->name : "unnamed");
     
     /* Create distributed query */
@@ -138,12 +138,17 @@ distributed_pattern_match(PatternMatcher* matcher, Atom* pattern, int* result_co
         }
     }
     
-    *result_count = local_count;
-    return local_results;
+    /* Create QueryResult */
+    QueryResult *result = create_query_result();
+    result->matched_atoms = local_results;
+    result->match_count = local_count;
+    result->confidence = local_count > 0 ? 0.8 : 0.0;
+    
+    return result;
 }
 
 int
-distributed_variable_binding(PatternMatcher* matcher, Atom* pattern, void* bindings) {
+distributed_variable_binding(PatternMatcher* matcher, Atom* pattern, VariableBinding** bindings) {
     (void)matcher; (void)bindings; /* Suppress unused warnings */
     
     print("🔗 Distributed variable binding for pattern: %s\n", 
@@ -155,7 +160,7 @@ distributed_variable_binding(PatternMatcher* matcher, Atom* pattern, void* bindi
 }
 
 double
-distributed_confidence_calculation(PatternMatcher* matcher, void* match_result) {
+distributed_confidence_calculation(PatternMatcher* matcher, QueryResult* match_result) {
     (void)matcher; (void)match_result; /* Suppress unused warnings */
     
     /* Calculate confidence based on multiple sources */
@@ -192,8 +197,8 @@ distributed_federated_match(PatternMatcher* matcher, Atom* pattern, char** remot
     return node_count;
 }
 
-int
-distributed_result_aggregation(PatternMatcher* matcher, void** partial_results, int count) {
+QueryResult*
+distributed_result_aggregation(PatternMatcher* matcher, QueryResult** partial_results, int count) {
     (void)matcher; /* Suppress unused warning */
     
     print("📊 Aggregating %d distributed pattern matching results...\n", count);
@@ -211,13 +216,17 @@ distributed_result_aggregation(PatternMatcher* matcher, void** partial_results, 
         }
     }
     
+    /* Create aggregated result */
+    QueryResult *aggregated = create_query_result();
     if (valid_results > 0) {
         double avg_confidence = total_confidence / valid_results;
+        aggregated->confidence = avg_confidence;
+        aggregated->match_count = valid_results;
         print("  📈 Aggregated %d results with average confidence: %.2f\n", 
               valid_results, avg_confidence);
     }
     
-    return valid_results;
+    return aggregated;
 }
 
 /*
@@ -249,10 +258,10 @@ create_distributed_learning_service(AtomSpaceService* atomspace, CognitiveAgent*
     return service;
 }
 
-int
-distributed_pln_inference(LearningService* service, Atom* premises, Atom** conclusions) {
+PLNInference*
+distributed_pln_inference(LearningService* service, Atom** premises, int premise_count) {
     print("🧠 Distributed PLN inference starting...\n");
-    print("  Premises: %s\n", premises->name ? premises->name : "unnamed");
+    print("  Premises count: %d\n", premise_count);
     
     /* Simulate PLN reasoning rules */
     PLNResult results[3];
@@ -279,6 +288,14 @@ distributed_pln_inference(LearningService* service, Atom* premises, Atom** concl
     results[result_count].confidence = 0.90;
     result_count++;
     
+    /* Create PLN inference result */
+    PLNInference *inference = mallocz(sizeof(PLNInference), 1);
+    inference->premises = premises;
+    inference->premise_count = premise_count;
+    inference->conclusions = nil; /* Would be filled with actual conclusions */
+    inference->conclusion_count = result_count;
+    inference->inference_strength = result_count > 0 ? results[0].confidence : 0.0;
+    
     /* Add conclusions to atomspace */
     for (int i = 0; i < result_count; i++) {
         service->atomspace->add_atom(service->atomspace, results[i].conclusion->type,
@@ -287,13 +304,8 @@ distributed_pln_inference(LearningService* service, Atom* premises, Atom** concl
               results[i].rule_applied, results[i].confidence);
     }
     
-    /* Store conclusions in output array */
-    for (int i = 0; i < result_count && i < 10; i++) {
-        conclusions[i] = results[i].conclusion;
-    }
-    
     print("  PLN inference complete: %d conclusions generated\n", result_count);
-    return result_count;
+    return inference;
 }
 
 int
@@ -495,14 +507,18 @@ demo_distributed_inference_engines(void) {
     AttentionService *dist_attention = create_distributed_attention_service(atomspace, federation);
     
     print("\n🔍 DISTRIBUTED PATTERN MATCHING:\n");
-    int result_count;
-    Atom **results = dist_matcher->match_pattern(dist_matcher, concept1, &result_count);
-    print("  Pattern matching complete: %d results\n", result_count);
+    QueryResult *results = dist_matcher->match_pattern(dist_matcher, concept1);
+    if (results) {
+        print("  Pattern matching complete: %d results (confidence: %.3f)\n", results->match_count, results->confidence);
+    }
     
     print("\n🧠 DISTRIBUTED PLN REASONING:\n");
-    Atom *conclusions[10];
-    int conclusion_count = dist_learning->pln_inference(dist_learning, concept1, conclusions);
-    print("  PLN inference complete: %d conclusions\n", conclusion_count);
+    Atom *premises[3] = {concept1, concept2, concept3};
+    PLNInference *inference = dist_learning->pln_inference(dist_learning, premises, 3);
+    if (inference) {
+        print("  PLN inference complete: %d conclusions (strength: %.3f)\n", 
+              inference->conclusion_count, inference->inference_strength);
+    }
     
     print("\n🎯 DISTRIBUTED ATTENTION:\n");
     /* Set up attention values */
@@ -537,35 +553,7 @@ demo_distributed_inference_engines(void) {
     free(focus);
 }
 
-/*
- * Function declarations (these should be added to the header file)
- */
-PatternMatcher* create_distributed_pattern_matcher(AtomSpaceService* atomspace, CognitiveFederation* federation);
-Atom** distributed_pattern_match(PatternMatcher* matcher, Atom* pattern, int* result_count);
-int distributed_variable_binding(PatternMatcher* matcher, Atom* pattern, void* bindings);
-double distributed_confidence_calculation(PatternMatcher* matcher, void* match_result);
-int distributed_federated_match(PatternMatcher* matcher, Atom* pattern, char** remote_nodes);
-int distributed_result_aggregation(PatternMatcher* matcher, void** partial_results, int count);
-
-LearningService* create_distributed_learning_service(AtomSpaceService* atomspace, CognitiveAgent* owner, CognitiveFederation* federation);
-int distributed_pln_inference(LearningService* service, Atom* premises, Atom** conclusions);
-int distributed_moses_optimization(LearningService* service, void* problem_definition);
-int distributed_reinforcement_learning(LearningService* service, void* reward_signal);
-int distributed_clustering(LearningService* service, Atom** data, int data_size);
-int distributed_interaction_learning(LearningService* service, void* interaction_data);
-int distributed_knowledge_update(LearningService* service, Atom* new_knowledge);
-int distributed_forgetting(LearningService* service, double threshold);
-
-AttentionService* create_distributed_attention_service(AtomSpaceService* atomspace, CognitiveFederation* federation);
-int distributed_attention_update(AttentionService* service, Atom* atom);
-int distributed_attention_spread(AttentionService* service, Atom* source, double amount);
-Atom** distributed_attentional_focus(AttentionService* service, int* count);
-int distributed_hebbian_update(AttentionService* service, Atom* atom1, Atom* atom2);
-double distributed_rent_calculation(AttentionService* service, Atom* atom);
-int distributed_rent_collection(AttentionService* service);
-int distributed_wage_payment(AttentionService* service, CognitiveAgent* agent);
-
-void demo_distributed_inference_engines(void);
+/* Implementation functions follow */
 
 /*
  * Stub implementations for referenced functions

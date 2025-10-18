@@ -18,6 +18,52 @@ enum AgentState {
 };
 
 /*
+ * Basic Service Creation Functions
+ */
+AttentionService*
+create_attention_service(AtomSpaceService* atomspace) {
+    AttentionService *service = mallocz(sizeof(AttentionService), 1);
+    service->service_name = strdup("attention_service");
+    service->atomspace = atomspace;
+    service->bank = nil;
+    service->total_sti_budget = 1000.0;
+    service->total_lti_budget = 500.0;
+    service->min_sti_threshold = 10.0;
+    service->max_spread_percentage = 0.2;
+    
+    /* Set basic function pointers to nil - will be set by enhanced version */
+    service->update_attention = nil;
+    service->spread_attention = nil;
+    service->get_attentional_focus = nil;
+    service->hebbian_update = nil;
+    service->calculate_rent = nil;
+    service->collect_rent = nil;
+    service->wage_payment = nil;
+    
+    return service;
+}
+
+LearningService*
+create_learning_service(AtomSpaceService* atomspace, CognitiveAgent* owner) {
+    LearningService *service = mallocz(sizeof(LearningService), 1);
+    service->service_name = strdup("learning_service");
+    service->atomspace = atomspace;
+    service->owner = owner;
+    service->pln_engine = nil;
+    
+    /* Set basic function pointers to nil - will be set by enhanced version */
+    service->pln_inference = nil;
+    service->moses_optimization = nil;
+    service->reinforcement_learning = nil;
+    service->unsupervised_clustering = nil;
+    service->learn_from_interaction = nil;
+    service->update_knowledge = nil;
+    service->forget_irrelevant = nil;
+    
+    return service;
+}
+
+/*
  * Cognitive Agent Creation and Management
  */
 

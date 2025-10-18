@@ -40,11 +40,15 @@ void demo_opencog_integration(CognitiveCity *city);
 
 void
 usage(void) {
-    fprint(2, "usage: cogcity [-d demo] [-o opencog] [-i interactive] [-c cityname]\n");
+    fprint(2, "usage: cogcity [-d demo] [-o opencog] [-i interactive] [-c cityname] [phase5_options]\n");
     fprint(2, "  -d demo: run demonstration scenarios\n");
     fprint(2, "  -o: run OpenCog-P9 integration demo\n");
     fprint(2, "  -i: start interactive chat interface\n");
     fprint(2, "  -c cityname: specify cognitive city name\n");
+    fprint(2, "  -p: run Phase 5 integration demo\n");
+    fprint(2, "  -e: run enhanced pattern matching demo\n");
+    fprint(2, "  -l: run PLN reasoning demo\n");
+    fprint(2, "  -a: run attention economics demo\n");
     exits("usage");
 }
 
@@ -54,6 +58,10 @@ threadmain(int argc, char *argv[]) {
     int demo_mode = 0;
     int opencog_mode = 0;
     int interactive_mode = 0;
+    int phase5_mode = 0;
+    int enhanced_pattern_matching_mode = 0;
+    int pln_reasoning_mode = 0;
+    int attention_economics_mode = 0;
     
     (void)argc; (void)argv; // Suppress unused parameter warnings
     
@@ -69,6 +77,18 @@ threadmain(int argc, char *argv[]) {
         break;
     case 'c':
         city_name = EARGF(usage);
+        break;
+    case 'p':
+        phase5_mode = 1;
+        break;
+    case 'e':
+        enhanced_pattern_matching_mode = 1;
+        break;
+    case 'a':
+        attention_economics_mode = 1;
+        break;
+    case 'l':
+        pln_reasoning_mode = 1;
         break;
     default:
         usage();
@@ -127,9 +147,29 @@ threadmain(int argc, char *argv[]) {
         sleep(2000);
     }
     
+    if (phase5_mode) {
+        demo_phase5_integration();
+        sleep(2000);
+    }
+    
+    if (enhanced_pattern_matching_mode) {
+        demo_enhanced_pattern_matching();
+        sleep(2000);
+    }
+    
+    if (pln_reasoning_mode) {
+        demo_pln_reasoning();
+        sleep(2000);
+    }
+    
+    if (attention_economics_mode) {
+        demo_attention_economics();
+        sleep(2000);
+    }
+    
     if (interactive_mode) {
         interactive_chat_session(global_cognitive_city);
-    } else if (!demo_mode) {
+    } else if (!demo_mode && !opencog_mode && !phase5_mode && !enhanced_pattern_matching_mode && !pln_reasoning_mode && !attention_economics_mode) {
         print("💡 Run with -d for demos or -i for interactive mode\n");
         print("   Example: cogcity -d -c \"CyberTokyo\"\n");
     }
